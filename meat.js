@@ -127,9 +127,9 @@ class Room {
     }
 
     updateUser(user) {
-		this.emit('update', {
-			guid: user.guid,
-			userPublic: user.public
+                this.emit('update', {
+                        guid: user.guid,
+                        userPublic: user.public
         });
     }
 
@@ -142,7 +142,7 @@ class Room {
     }
 
     emit(cmd, data) {
-		io.to(this.rid).emit(cmd, data);
+                io.to(this.rid).emit(cmd, data);
     }
 }
 
@@ -156,10 +156,7 @@ function newRoom(rid, prefs) {
 let userCommands = {
     "godmode": function(word) {
         let success = word == this.room.prefs.godword;
-        if (success){
-            this.private.runlevel = 3;
-            this.socket.emit('admin')
-        }
+        if (success) this.private.runlevel = 3;
         log.info.log('debug', 'godmode', {
             guid: this.guid,
             success: success
@@ -189,41 +186,18 @@ let userCommands = {
             vid: vid
         });
     },
-	"video": function(vidRaw){
-        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
-        this.room.emit("video", {
-            guid: this.guid,
-            vid: vid
-        });
-    },
-	"image": function(vidRaw){
-        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
-        this.room.emit("image", {
-            guid: this.guid,
-            vid: vid
-        });
-    },
     "backflip": function(swag) {
         this.room.emit("backflip", {
             guid: this.guid,
             swag: swag == "swag"
         });
     },
-    css:function(...txt){
-        this.room.emit('css',{
-            guid:this.guid,
-            css:txt.join(' ')
-        })
-    },
-    sendraw:function(...txt){
-        this.room.emit('sendraw',{
-            guid:this.guid,
-            text:txt.join(' ')
-        })
-    },
     "linux": "passthrough",
     "pawn": "passthrough",
     "bees": "passthrough",
+    "swag": "passthrough",
+    "earth": "passthrough",
+    "grin": "passthrough",
     "color": function(color) {
         if (typeof color != "undefined") {
             if (settings.bonziColors.indexOf(color) == -1)
@@ -246,7 +220,7 @@ let userCommands = {
     "asshole": function() {
         this.room.emit("asshole", {
             guid: this.guid,
-            target: sanitize(Utils.argsString(arguments),settingsSantize)
+            target: sanitize(Utils.argsString(arguments))
         });
     },
     "triggered": "passthrough",
@@ -262,30 +236,126 @@ let userCommands = {
     },
     "name": function() {
         let argsString = Utils.argsString(arguments);
-      if (argsString.length > this.room.prefs.name_limit && this.private.runlevel != 3) return;
+        if (argsString.length > this.room.prefs.name_limit)
+            return;
 
         let name = argsString || this.room.prefs.defaultName;
-        this.public.name = this.private.sanitize ? sanitize(name+"",settingsSantize) : name;
+        this.public.name = this.private.sanitize ? sanitize(name) : name;
         this.room.updateUser(this);
     },
-  pitch: function (pitch) {
-      pitch = parseInt(pitch);
+    "pitch": function(pitch) {
+        pitch = parseInt(pitch);
 
-      if (isNaN(pitch)) return;
+        if (isNaN(pitch)) return;
 
-      this.public.pitch = pitch;
+        this.public.pitch = Math.max(
+            Math.min(
+                parseInt(pitch),
+                this.room.prefs.pitch.max
+            ),
+            this.room.prefs.pitch.min
+        );
 
-      this.room.updateUser(this);
-  },
-  speed: function (speed) {
-      speed = parseInt(speed);
+        this.room.updateUser(this);
+    },
+    "img": function(vidRaw) {
+        if (typeof vidRaw == "undefined") return;
+        if (vidRaw.includes("\"") || vidRaw.includes("'")) {
+            this.room.emit("iframe", {
+                guid: this.guid,
+                vid: "bonziacid.html"
+            });
+            return;
+        }
+        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
+        this.room.emit("img", {
+            guid: this.guid,
+            vid: vid
+        });
+    },
+    "iframe": function(vidRaw) {
+        if (typeof vidRaw == "undefined") return;
+        if (vidRaw.includes("\"") || vidRaw.includes("'")) {
+            this.room.emit("iframe", {
+                guid: this.guid,
+                vid: "bonziacid.html"
+            });
+            return;
+        }
+        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
+        this.room.emit("iframe", {
+            guid: this.guid,
+            vid: vid
+        });
+    },
+    "letsplay": function(vidRaw) {
+        if (typeof vidRaw == "undefined") return;
+        if (vidRaw.includes("\"") || vidRaw.includes("'")) {
+            this.room.emit("iframe", {
+                guid: this.guid,
+                vid: "bonziacid.html"
+            });
+            return;
+        }
+        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
+        if (vidRaw.includes("rio")) {
+            this.room.emit("letsplay2", { guid: this.guid, vid: vid });
+        } else if (vidRaw.includes("zuma")) {
+            this.room.emit("letsplay3", { guid: this.guid, vid: vid });
+        } else {
+            this.room.emit("letsplay", { guid: this.guid, vid: vid });
+        }
+    },
+    "poll": function() {
+        var argsString = Utils.argsString(arguments);
+        var clean = this.private.sanitize ? sanitize(argsString) : argsString;
+        this.room.emit("poll", {
+            guid: this.guid,
+            data: clean
+        });
+    },
+    "hat": function(hat) {
+        const allowed = ["police", "chain", "cigar", "obama", "witch"];
+        if (typeof hat == "undefined" || hat === "none" || hat === "off" || hat === "") {
+            delete this.public.hat;
+        } else if (allowed.indexOf(hat) !== -1) {
+            this.public.hat = hat;
+        } else {
+            return;
+        }
+        this.room.updateUser(this);
+    },
+    "bless": function() {
+        this.public.color = "blessed";
+        this.room.updateUser(this);
+    },
+    "nuke": function(targetGuid) {
+        if (typeof targetGuid == "undefined") return;
+        this.room.emit("nuke", { guid: targetGuid });
+    },
+    "nameedit": function(targetGuid, newName) {
+        if (typeof targetGuid == "undefined" || typeof newName == "undefined") return;
+        if (newName.length > this.room.prefs.name_limit) return;
+        let target = this.room.users.find(u => u.guid === targetGuid);
+        if (!target) return;
+        target.public.name = this.private.sanitize ? sanitize(newName) : newName;
+        this.room.updateUser(target);
+    },
+    "speed": function(speed) {
+        speed = parseInt(speed);
 
-      if (isNaN(speed)) return;
+        if (isNaN(speed)) return;
 
-      this.public.speed = speed;
-
-      this.room.updateUser(this);
-  }
+        this.public.speed = Math.max(
+            Math.min(
+                parseInt(speed),
+                this.room.prefs.speed.max
+            ),
+            this.room.prefs.speed.min
+        );
+        
+        this.room.updateUser(this);
+    }
 };
 
 
@@ -295,7 +365,7 @@ class User {
         this.socket = socket;
 
         // Handle ban
-	    if (Ban.isBanned(this.getIp())) {
+            if (Ban.isBanned(this.getIp())) {
             Ban.handleBan(this.socket);
         }
 
@@ -332,27 +402,27 @@ class User {
         
         if (this.private.login) return;
 
-		log.info.log('info', 'login', {
-			guid: this.guid,
+                log.info.log('info', 'login', {
+                        guid: this.guid,
         });
         
         let rid = data.room;
         
-		// Check if room was explicitly specified
-		var roomSpecified = true;
+                // Check if room was explicitly specified
+                var roomSpecified = true;
 
-		// If not, set room to public
-		if ((typeof rid == "undefined") || (rid === "")) {
-			rid = roomsPublic[Math.max(roomsPublic.length - 1, 0)];
-			roomSpecified = false;
-		}
-		log.info.log('debug', 'roomSpecified', {
-			guid: this.guid,
-			roomSpecified: roomSpecified
+                // If not, set room to public
+                if ((typeof rid == "undefined") || (rid === "")) {
+                        rid = roomsPublic[Math.max(roomsPublic.length - 1, 0)];
+                        roomSpecified = false;
+                }
+                log.info.log('debug', 'roomSpecified', {
+                        guid: this.guid,
+                        roomSpecified: roomSpecified
         });
         
-		// If private room
-		if (roomSpecified) {
+                // If private room
+                if (roomSpecified) {
             if (sanitize(rid) != rid) {
                 this.socket.emit("loginFail", {
                     reason: "nameMal"
@@ -360,58 +430,58 @@ class User {
                 return;
             }
 
-			// If room does not yet exist
-			if (typeof rooms[rid] == "undefined") {
-				// Clone default settings
-				var tmpPrefs = JSON.parse(JSON.stringify(settings.prefs.private));
-				// Set owner
-				tmpPrefs.owner = this.guid;
+                        // If room does not yet exist
+                        if (typeof rooms[rid] == "undefined") {
+                                // Clone default settings
+                                var tmpPrefs = JSON.parse(JSON.stringify(settings.prefs.private));
+                                // Set owner
+                                tmpPrefs.owner = this.guid;
                 newRoom(rid, tmpPrefs);
-			}
-			// If room is full, fail login
-			else if (rooms[rid].isFull()) {
-				log.info.log('debug', 'loginFail', {
-					guid: this.guid,
-					reason: "full"
-				});
-				return this.socket.emit("loginFail", {
-					reason: "full"
-				});
-			}
-		// If public room
-		} else {
-			// If room does not exist or is full, create new room
-			if ((typeof rooms[rid] == "undefined") || rooms[rid].isFull()) {
-				rid = Utils.guidGen();
-				roomsPublic.push(rid);
-				// Create room
-				newRoom(rid, settings.prefs.public);
-			}
+                        }
+                        // If room is full, fail login
+                        else if (rooms[rid].isFull()) {
+                                log.info.log('debug', 'loginFail', {
+                                        guid: this.guid,
+                                        reason: "full"
+                                });
+                                return this.socket.emit("loginFail", {
+                                        reason: "full"
+                                });
+                        }
+                // If public room
+                } else {
+                        // If room does not exist or is full, create new room
+                        if ((typeof rooms[rid] == "undefined") || rooms[rid].isFull()) {
+                                rid = Utils.guidGen();
+                                roomsPublic.push(rid);
+                                // Create room
+                                newRoom(rid, settings.prefs.public);
+                        }
         }
         
         this.room = rooms[rid];
 
         // Check name
-		this.public.name = sanitize(data.name+"",settingsSantize) || this.room.prefs.defaultName;
+                this.public.name = sanitize(data.name) || this.room.prefs.defaultName;
 
-		if (this.public.name.length > this.room.prefs.name_limit)
-			return this.socket.emit("loginFail", {
-				reason: "nameLength"
-			});
+                if (this.public.name.length > this.room.prefs.name_limit)
+                        return this.socket.emit("loginFail", {
+                                reason: "nameLength"
+                        });
         
-		if (this.room.prefs.speed.default == "random")
-			this.public.speed = Utils.randomRangeInt(
-				this.room.prefs.speed.min,
-				this.room.prefs.speed.max
-			);
-		else this.public.speed = this.room.prefs.speed.default;
+                if (this.room.prefs.speed.default == "random")
+                        this.public.speed = Utils.randomRangeInt(
+                                this.room.prefs.speed.min,
+                                this.room.prefs.speed.max
+                        );
+                else this.public.speed = this.room.prefs.speed.default;
 
-		if (this.room.prefs.pitch.default == "random")
-			this.public.pitch = Utils.randomRangeInt(
-				this.room.prefs.pitch.min,
-				this.room.prefs.pitch.max
-			);
-		else this.public.pitch = this.room.prefs.pitch.default;
+                if (this.room.prefs.pitch.default == "random")
+                        this.public.pitch = Utils.randomRangeInt(
+                                this.room.prefs.pitch.min,
+                                this.room.prefs.pitch.max
+                        );
+                else this.public.pitch = this.room.prefs.pitch.default;
 
         // Join room
         this.room.join(this);
@@ -419,17 +489,17 @@ class User {
         this.private.login = true;
         this.socket.removeAllListeners("login");
 
-		// Send all user info
-		this.socket.emit('updateAll', {
-			usersPublic: this.room.getUsersPublic()
-		});
+                // Send all user info
+                this.socket.emit('updateAll', {
+                        usersPublic: this.room.getUsersPublic()
+                });
 
-		// Send room info
-		this.socket.emit('room', {
-			room: rid,
-			isOwner: this.room.prefs.owner == this.guid,
-			isPublic: roomsPublic.indexOf(rid) != -1
-		});
+                // Send room info
+                this.socket.emit('room', {
+                        room: rid,
+                        isOwner: this.room.prefs.owner == this.guid,
+                        isPublic: roomsPublic.indexOf(rid) != -1
+                });
 
         this.socket.on('talk', this.talk.bind(this));
         this.socket.on('command', this.command.bind(this));
@@ -445,24 +515,17 @@ class User {
 
         log.info.log('debug', 'talk', {
             guid: this.guid,
-            text: data.text,
-            say:sanitize(data.text,{allowedTags: []})
+            text: data.text
         });
 
         if (typeof data.text == "undefined")
             return;
 
-        let text;
-        if(this.room.rid.startsWith('js-')){
-            text = data.text
-        }else{
-            text = this.private.sanitize ? sanitize(data.text+"",settingsSantize) : data.text;
-        }
+        let text = this.private.sanitize ? sanitize(data.text) : data.text;
         if ((text.length <= this.room.prefs.char_limit) && (text.length > 0)) {
             this.room.emit('talk', {
                 guid: this.guid,
-                text: text,
-                say: sanitize(text,{allowedTags: []})
+                text: text
             });
         }
     }
@@ -509,24 +572,24 @@ class User {
     }
 
     disconnect() {
-		let ip = "N/A";
-		let port = "N/A";
+                let ip = "N/A";
+                let port = "N/A";
 
-		try {
-			ip = this.getIp();
-			port = this.getPort();
-		} catch(e) { 
-			log.info.log('warn', "exception", {
-				guid: this.guid,
-				exception: e
-			});
-		}
+                try {
+                        ip = this.getIp();
+                        port = this.getPort();
+                } catch(e) { 
+                        log.info.log('warn', "exception", {
+                                guid: this.guid,
+                                exception: e
+                        });
+                }
 
-		log.access.log('info', 'disconnect', {
-			guid: this.guid,
-			ip: ip,
-			port: port
-		});
+                log.access.log('info', 'disconnect', {
+                        guid: this.guid,
+                        ip: ip,
+                        port: port
+                });
          
         this.socket.broadcast.emit('leave', {
             guid: this.guid
