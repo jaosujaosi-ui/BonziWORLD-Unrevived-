@@ -1,43 +1,70 @@
 var settingsSantize = {
-    allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "p", "a", "ul", "ol", "nl", "li", "b", "i", "strong", "em", "strike", "code", "hr", "br", "div", "table", "thead", "caption", "tbody", "tr", "th", "td", "pre", "iframe", "marquee", "button", "input", "details", "summary", "progress", "meter", "font", "span", "select", "option", "abbr", "acronym", "adress", "article", "aside", "bdi", "bdo", "big", "center", "site", "data", "datalist", "dl", "del", "dfn", "dialog", "dir", "dl", "dt", "fieldset", "figure", "figcaption", "header", "ins", "kbd", "legend", "mark", "nav", "optgroup", "form", "q", "rp", "rt", "ruby", "s", "sample", "section", "small", "sub", "sup", "template", "textarea", "tt", "u"],
-    allowedAttributes: {
-        a: ["href", "name", "target"],
-        p: ["align"],
-        table: ["align", "border", "bgcolor", "cellpadding", "cellspadding", "frame", "rules", "width"],
-        tbody: ["align", "valign"],
-        tfoot: ["align", "valign"],
-        td: ["align", "colspan", "headers", "nowrap"],
-        th: ["align", "colspan", "headers", "nowrap"],
-        textarea: ["cols", "dirname", "disabled", "placeholder", "maxlength", "readonly", "required", "rows", "wrap"],
-        pre: ["width"],
-        ol: ["compact", "reversed", "start", "type"],
-        option: ["disabled"],
-        optgroup: ["disabled", "label", "selected"],
-        legend: ["align"],
-        li: ["type", "value"],
-        hr: ["align", "noshade", "size", "width"],
-        fieldset: ["disabled"],
-        dialog: ["open"],
-        dir: ["compact"],
-        bdo: ["dir"],
-        marquee: ["behavior", "bgcolor", "direction", "width", "height", "loop", "scrollamount", "scrolldelay"],
-        button: ["disabled"],
-        input: ["value", "type", "disabled", "maxlength", "max", "min", "placeholder", "readonly", "required", "checked"],
-        details: ["open"],
-        div: ["align"],
-        progress: ["value", "max"],
-        meter: ["value", "max", "min", "optimum", "low", "high"],
-        font: ["size", "family", "color"],
-        select: ["disabled", "multiple", "require"],
-        ul: ["type", "compact"],
-        "*": ["hidden", "spellcheck", "title", "contenteditable", "data-style"],
-    },
-    selfClosing: ["img", "br", "hr", "area", "base", "basefont", "input", "link", "meta", "wbr"],
-    allowedSchemes: ["http", "https", "ftp", "mailto", "data"],
-    allowedSchemesByTag: {},
-    allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
-    allowProtocolRelative: false,
-};
+    allowedTags: [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
+    'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div',
+    'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'iframe','marquee','button','input'
+    ,'details','summary','progress','meter','font','h1','h2','span','select','option','abbr',
+    'acronym','adress','article','aside','bdi','bdo','big','center','site',
+    'data','datalist','dl','del','dfn','dialog','dir','dl','dt','fieldset',
+    'figure','figcaption','header','ins','kbd','legend','mark','nav',
+    'optgroup','form','q','rp','rt','ruby','s','sample','section','small',
+    'sub','sup','template','textarea','tt','u'],
+  allowedAttributes: {
+    a: [ 'href', 'name', 'target' ],
+    p:['align'],
+    table:['align','border','bgcolor','cellpadding','cellspadding','frame','rules','width'],
+    tbody:['align','valign'],
+    tfoot:['align','valign'],
+    td:['align','colspan','headers','nowrap'],
+    th:['align','colspan','headers','nowrap'],
+    textarea:['cols','dirname','disabled','placeholder','maxlength','readonly','required','rows','wrap'],
+    pre:['width'],
+    ol:['compact','reversed','start','type'],
+    option:['disabled'],
+    optgroup:['disabled','label','selected'],
+    legend: ['align'],
+    li:['type','value'],
+    hr:['align','noshade','size','width'],
+    fieldset:['disabled'],
+    dialog:['open'],
+    dir:['compact'],
+    bdo:['dir'],
+    div:['class'],
+    marquee:['behavior','bgcolor','direction','width','height','loop'],
+    button: ['disabled'],
+    input:['value','type','disabled','maxlength','max','min','placeholder','readonly','required'],
+    details:['open'],
+    div:['align'],
+    progress:['value','max'],
+    meter:['value','max','min','optimum','low','high'],
+    font:['size','family','color'],
+    select:['disabled','multiple','require'],
+    ul:['type','compact'],  
+    "*":['hidden','spellcheck','title','contenteditable','data-style']
+  },
+  selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' , 'wbr'],
+  allowedSchemes: [ 'http', 'https', 'ftp', 'mailto', 'data' ],
+  allowedSchemesByTag: {},
+  allowedSchemesAppliedToAttributes: [ 'href', 'src', 'cite' ],
+  allowProtocolRelative: true
+} 
+  
+var stickers = {
+    sad:"so sad",
+    bonzi:"BonziBUDDY",
+    host:"host is a bathbomb",
+    spook:"ew i'm spooky",
+    forehead:"you have a big forehead",
+    ban:"i will ban you so hard right now",
+    flatearth:"this is true, and you cant change my opinion",
+    swag:"look at my swag!",
+    topjej:"toppest jej",
+    cyan:"cyan is yellow? no!",
+    flip:"toppest jej",
+    sans:"cyan is yellow? no!",
+    no:"nope!",
+    bye:"bye i'm leaving",
+    kiddie:"kiddie",
+}
 const log = require("./log.js").log;
 const Ban = require("./ban.js");
 const Utils = require("./utils.js");
@@ -223,6 +250,54 @@ let userCommands = {
             target: sanitize(Utils.argsString(arguments))
         });
     },
+        "beggar": function() {
+        this.room.emit("beggar", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "kiddie": function() {
+        this.room.emit("kiddie", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "gofag": function() {
+        this.room.emit("gofag", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "logofag": function() {
+        this.room.emit("logofag", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "forcer": function() {
+        this.room.emit("forcer", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "welcome": function() {
+        this.room.emit("welcome", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "owo": function() {
+        this.room.emit("owo", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
+    "uwu": function() {
+        this.room.emit("uwu", {
+            guid: this.guid,
+            target: sanitize(Utils.argsString(arguments))
+        });
+    },
     "triggered": "passthrough",
     "vaporwave": function() {
         this.socket.emit("vaporwave");
@@ -258,53 +333,106 @@ let userCommands = {
 
         this.room.updateUser(this);
     },
-    "img": function(vidRaw) {
-        if (typeof vidRaw == "undefined") return;
-        if (vidRaw.includes("\"") || vidRaw.includes("'")) {
-            this.room.emit("iframe", {
-                guid: this.guid,
-                vid: "bonziacid.html"
-            });
-            return;
-        }
+	"sticker": function(sticker){
+        if(Object.keys(stickers).includes(sticker)){
+            this.room.emit('talk',{
+                text:`<img src="./img/stickers/${sticker}.png" width=170 height=170>`,
+                say:stickers[sticker],
+                guid:this.guid
+            })
+		} 
+    },
+	"video": function(vidRaw){
+        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
+        this.room.emit("video", {
+            guid: this.guid,
+            vid: vid
+        });
+    },
+	"video_legacy": function(vidRaw){
+        var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
+        this.room.emit("video_legacy", {
+            guid: this.guid,
+            vid: vid
+        });
+    },
+	"img": function(vidRaw){
+
+			if(vidRaw.includes("\"")){
+				this.room.emit("iframe", {
+					guid: this.guid,
+					vid: "bonziacid.html"
+				}); 
+				return;
+			}
+			if(vidRaw.includes("'")){ 
+				this.room.emit("iframe", {
+					guid: this.guid,
+					vid: "bonziacid.html"
+				}); 
+				return;
+			}
         var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
         this.room.emit("img", {
             guid: this.guid,
             vid: vid
         });
     },
-    "iframe": function(vidRaw) {
-        if (typeof vidRaw == "undefined") return;
-        if (vidRaw.includes("\"") || vidRaw.includes("'")) {
-            this.room.emit("iframe", {
-                guid: this.guid,
-                vid: "bonziacid.html"
-            });
-            return;
-        }
+	"iframe": function(vidRaw){
+
+			if(vidRaw.includes("\"")){
+				this.room.emit("iframe", {
+					guid: this.guid,
+					vid: "bonziacid.html"
+				}); 
+				return;
+			}
+			if(vidRaw.includes("'")){ 
+				this.room.emit("iframe", {
+					guid: this.guid,
+					vid: "bonziacid.html"
+				}); 
+				return;
+			}
         var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
         this.room.emit("iframe", {
             guid: this.guid,
             vid: vid
         });
     },
-    "letsplay": function(vidRaw) {
-        if (typeof vidRaw == "undefined") return;
-        if (vidRaw.includes("\"") || vidRaw.includes("'")) {
-            this.room.emit("iframe", {
-                guid: this.guid,
-                vid: "bonziacid.html"
-            });
-            return;
-        }
+	"letsplay": function(vidRaw){
+
+			if(vidRaw.includes("\"")){
+				this.room.emit("iframe", {
+					guid: this.guid,
+					vid: "bonziacid.html"
+				}); 
+				return;
+			}
+			if(vidRaw.includes("'")){ 
+				this.room.emit("iframe", {
+					guid: this.guid,
+					vid: "bonziacid.html"
+				}); 
+				return;
+			}
         var vid = this.private.sanitize ? sanitize(vidRaw) : vidRaw;
-        if (vidRaw.includes("rio")) {
-            this.room.emit("letsplay2", { guid: this.guid, vid: vid });
-        } else if (vidRaw.includes("zuma")) {
-            this.room.emit("letsplay3", { guid: this.guid, vid: vid });
-        } else {
-            this.room.emit("letsplay", { guid: this.guid, vid: vid });
-        }
+		if (vidRaw.includes("rio")){
+			this.room.emit("letsplay2", {
+				guid: this.guid,
+				vid: vid
+			});
+		} else if(vidRaw.includes("zuma")){
+			this.room.emit("letsplay3", {
+				guid: this.guid,
+				vid: vid
+			});
+		} else {
+			this.room.emit("letsplay", {
+				guid: this.guid,
+				vid: vid
+			});			
+		}
     },
     "poll": function() {
         var argsString = Utils.argsString(arguments);
@@ -315,7 +443,7 @@ let userCommands = {
         });
     },
     "hat": function(hat) {
-        const allowed = ["police", "chain", "cigar", "obama", "witch"];
+        const allowed = ["police", "chain", "cigar", "obama", "witch",  "eyebrows",  "bucket", "tophat"];
         if (typeof hat == "undefined" || hat === "none" || hat === "off" || hat === "") {
             delete this.public.hat;
         } else if (allowed.indexOf(hat) !== -1) {
