@@ -1,5 +1,5 @@
 (function () {
-    var BONZI_COLORS = ["purple", "blue", "green", "red", "black", "brown"];
+    var BONZI_COLORS = ["aqua", "black", "blue", "brown", "cyan", "diamond", "emerald", "gold", "green", "lime", "orange", "pink", "purple", "red", "white", "yellow","quartz", "nethergold","purplesaber","cameraman","cartoonnetwork","brasilempire","stella","grinnyboi","yan","peedy" ,"bustystickwoman", "femboykisser", "ruby","navy", "chartreuse", "sapphire","lavenderribbon" ,"clock","puro"];
     var pfpColorIndex = 0;
 
     function send(cmdList) {
@@ -256,14 +256,59 @@
         var $b = ensureBonziPositioned(guid);
         if (!$b.length) return;
         $b.find(".bonzi_media_overlay").remove();
+        // Try to detect URL and preflight-check status when possible so we can
+        // show a clearer message for HTTP 401/403 errors instead of a broken element.
         var $w = $(
             '<div class="bonzi_media_overlay">' +
                 '<div class="bonzi_media_close">x</div>' +
                 html +
             '</div>'
         );
-        $b.append($w);
-        $w.find(".bonzi_media_close").on("click", function () { $w.remove(); });
+
+        function attachAndAppend() {
+            $b.append($w);
+            $w.find(".bonzi_media_close").on("click", function () { $w.remove(); });
+            $w.find("img").on("error", function () {
+                $(this).replaceWith('<div class="media_error">Unable to load image (might require authentication or returned HTTP error)</div>');
+            });
+            $w.find("video").on("error", function () {
+                $(this).replaceWith('<div class="media_error">Unable to load video (might require authentication or returned HTTP error)</div>');
+            });
+            $w.find("iframe").on("error", function () {
+                $(this).replaceWith('<div class="media_error">Unable to load embedded content (might require authentication or returned HTTP error)</div>');
+            });
+        }
+
+        // Extract src from html for simple cases (img, video, iframe)
+        var srcMatch = String(html).match(/(?:src\s*=\s*\")([^\"]+)\"|(?:src\s*=\s*\')([^\']+)\'/i);
+        var src = srcMatch ? (srcMatch[1] || srcMatch[2]) : null;
+        if (!src) {
+            attachAndAppend();
+            return;
+        }
+
+        // Attempt to fetch HEAD to get status when CORS allows it. If fetch fails
+        // (CORS or network), fall back to appending the element so browser handles it.
+        try {
+            var controller = new AbortController();
+            var timeout = setTimeout(function () { controller.abort(); }, 3000);
+            fetch(src, { method: 'HEAD', signal: controller.signal, cache: 'no-store' }).then(function (res) {
+                clearTimeout(timeout);
+                if (res.status === 401 || res.status === 403) {
+                    $b.append(
+                        '<div class="bonzi_media_overlay"><div class="bonzi_media_close">x</div><div class="media_error">Resource returned HTTP ' +
+                            res.status + '. Authentication required.</div></div>'
+                    );
+                } else {
+                    attachAndAppend();
+                }
+            }).catch(function (err) {
+                // Could be CORS, network, or timeout — append and let browser try.
+                attachAndAppend();
+            });
+        } catch (e) {
+            attachAndAppend();
+        }
     }
 
     function showPoll(guid, data) {
