@@ -24,7 +24,10 @@
 				"name": 0,
 				"pope": 3,
 				"video": 0,
-				"img": 0
+				"img": 0,
+				 "ban": 3,
+				"kick": 3,
+				"doggis": 3
 			},
 			"room_max": 100000,
 			"owner": null,
@@ -64,7 +67,10 @@
 				"name": 0,
 				"pope": 3,
 				"video": 0,
-				"img": 0
+				"img": 0,
+				"ban": 3,
+				"kick": 3,
+				"doggis": 3
 			},
 			"room_max": 100000,
 			"owner": null,
