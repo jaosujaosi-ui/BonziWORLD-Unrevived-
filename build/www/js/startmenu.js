@@ -1,5 +1,5 @@
 (function () {
-    var BONZI_COLORS = ["aqua", "black", "blue", "brown", "cyan", "diamond", "emerald", "gold", "green", "lime", "orange", "pink", "purple", "red", "white", "yellow","quartz", "nethergold","purplesaber","cameraman","cartoonnetwork","brasilempire","stella","grinnyboi","yan","peedy" ,"bustystickwoman", "femboykisser", "ruby","navy", "chartreuse", "sapphire","lavenderribbon" ,"clock","puro"];
+    var BONZI_COLORS = ["aqua", "black", "blue", "brown", "cyan", "diamond", "emerald", "gold", "green", "lime", "orange", "pink", "purple", "red", "white", "yellow","quartz", "nethergold","purplesaber","cameraman","cartoonnetwork","brasilempire","stella","grinnyboi","yan","peedy" ,"bustystickwoman", "femboykisser", "ruby","navy", "chartreuse", "sapphire","lavenderribbon" ,"clock"];
     var pfpColorIndex = 0;
 
     function send(cmdList) {
