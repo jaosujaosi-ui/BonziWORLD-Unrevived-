@@ -22,7 +22,9 @@
 				"vaporwave": 0,
 				"unvaporwave": 0,
 				"name": 0,
-				"pope": 3
+				"pope": 3,
+				"video": 0,
+				"img": 0
 			},
 			"room_max": 100000,
 			"owner": null,
@@ -60,7 +62,9 @@
 				"vaporwave": 0,
 				"unvaporwave": 0,
 				"name": 0,
-				"pope": 3
+				"pope": 3,
+				"video": 0,
+				"img": 0
 			},
 			"room_max": 100000,
 			"owner": null,
